@@ -5,6 +5,9 @@
     <title></title>
     <script src="https://d3js.org/d3.v5.js"></script>
     <style>
+        .plot-title {
+            margin-bottom: 0;
+        }
         .plot {
             font: 10px sans-serif;
             padding: 0 20px;
@@ -29,7 +32,7 @@ It has information about flights for major US airlines in 2015 (arrival/departur
 <h1>The most/least busiest month of the year</h1>
 
 <div>
-    <h3>Flights per month</h3>
+    <h3 class="plot-title">Flights per month</h3>
     <svg id="monthsPlot" class="plot" width="600" height="300"></svg>
 </div>
 
