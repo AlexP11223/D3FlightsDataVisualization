@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="https://d3js.org/d3.v5.js"></script>
+    <style>
+        .plot {
+            font: 10px sans-serif;
+            padding: 0 20px;
+        }
+
+         .tick line {
+             opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+
+<a href="https://www.kaggle.com/usdot/flight-delays">Kaggle 2015 Flight Delays and Cancellations</a> dataset.
+It has information about flights for major US airlines in 2015 (arrival/departure times, delay, flight ID, distance, ...) and information about airport cities/coordinates, airlines.
+
+<h1>The most/least busiest month of the year</h1>
+
+<div>
+    <h3>Flights per month</h3>
+    <svg id="monthsPlot" class="plot" width="600" height="300"></svg>
+</div>
+
+
+<h1>The most/least active airports</h1>
+<h1>Airports with the most/least delays</h1>
+<h1>Airlines with the most/least delays</h1>
+
+<script>
+    async function makeMonthsPlot() {
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        const data = (await d3.json('months.json'))
+            .map((it) => ({name: monthNames[it.month - 1], value: it.count}));
+
+        const svg = d3.select('#monthsPlot');
+
+        const width = Number(svg.attr('width'));
+        const height = Number(svg.attr('height'));
+        const margin = ({top: 20, right: 0, bottom: 30, left: 40});
+
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.name))
+            .range([margin.left, width - margin.right])
+            .padding(0.1);
+
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.value)]).nice()
+            .range([height - margin.bottom, margin.top]);
+
+        const xAxis = g => g
+            .attr('transform', `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x)
+                .tickSizeOuter(0));
+
+        const yAxis = g => g
+            .attr('transform', `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y).tickSize(-width, 0, 0))
+            .call(g => g.select(".domain").remove());
+
+        svg.append('g')
+            .attr('fill', 'steelblue')
+            .selectAll('rect')
+            .data(data).enter().append('rect')
+            .attr('x', d => x(d.name))
+            .attr('y', d => y(d.value))
+            .attr('height', d => y(0) - y(d.value))
+            .attr('width', x.bandwidth());
+
+        svg.append('g').call(xAxis);
+        svg.append('g').call(yAxis);
+    }
+</script>
+
+<!--suppress JSIgnoredPromiseFromCall -->
+<script>
+    makeMonthsPlot();
+</script>
+</body>
+</html>
