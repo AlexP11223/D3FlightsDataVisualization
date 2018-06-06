@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <title></title>
     <script src="https://d3js.org/d3.v5.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+          integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+            integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+            crossorigin=""></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <style>
         .plot-title {
             margin-bottom: 0;
@@ -16,36 +27,83 @@
          .tick line {
              opacity: 0.3;
         }
+
+        .airport-list a {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .no-padding-col {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .sort-button {
+            margin-right: 6px;
+        }
+        .sort-button i {
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
 
-<div id="loadError" style="display: none; color: red; font-size: 20px;">
-    <p>Failed to access data files. Are you trying to open this page as a local HTML file?</p>
-    <p>Use a web server (such as <code style="color: black;">npm install -g http-server</code> and run <code style="color: black;">http-server</code>)
-        or go to <a href="https://alexp11223.github.io/D3FlightsDataVisualization/">https://alexp11223.github.io/D3FlightsDataVisualization/</a></p>
-</div>
 
-<a href="https://www.kaggle.com/usdot/flight-delays">Kaggle 2015 Flight Delays and Cancellations</a> dataset.
-It has information about flights for major US airlines in 2015 (arrival/departure times, delay, flight ID, distance, ...) and information about airport cities/coordinates, airlines.
+<div class="container">
+    <div id="loadError" style="display: none; color: red; font-size: 20px;">
+        <p>Failed to access data files. Are you trying to open this page as a local HTML file?</p>
+        <p>Use a web server (such as <code style="color: black;">npm install -g http-server</code> and run <code style="color: black;">http-server</code>)
+            or go to <a href="https://alexp11223.github.io/D3FlightsDataVisualization/">https://alexp11223.github.io/D3FlightsDataVisualization/</a>
+        </p>
+    </div>
 
-<h1>The most/least busiest month of the year</h1>
+    <a href="https://www.kaggle.com/usdot/flight-delays">Kaggle 2015 Flight Delays and Cancellations</a> dataset.
+    It has information about flights for major US airlines in 2015 (arrival/departure times, delay, flight ID, distance, ...)
+    and information about airport cities/coordinates, airlines.
 
-<div>
+    <h1>The most/least busiest month of the year</h1>
     <h3 class="plot-title">Flights per month</h3>
-    <svg id="monthsPlot" class="plot" width="600" height="300"></svg>
+    <div class="row">
+        <svg id="monthsPlot" class="plot" width="600" height="300"></svg>
+    </div>
+
+    <h1>The most active airports</h1>
+    Line width depends on number of flights.
+    <div class="row">
+        <div class="col-xl-8">
+            <div id="routesMap" style="width: 100%; height: 560px"></div>
+        </div>
+        <div class="col no-padding-col">
+            <h3>Select airport</h3>
+            <div class="form-check form-check-inline" data-toggle="tooltip" title="Outgoing routes from the selected airport">
+                <input class="form-check-input" type="checkbox" name="chkOrigin" id="chkOrigin" value="origin" checked>
+                <label class="form-check-label" for="chkOrigin">Origin</label>
+            </div>
+            <div class="form-check form-check-inline" data-toggle="tooltip" title="Incoming routes to the selected airport">
+                <input class="form-check-input" type="checkbox" name="chkDest" id="chkDest" value="dest">
+                <label class="form-check-label" for="chkDest">Destination</label>
+            </div>
+            <a href="javascript:void(0)" id="sortAirportsCode" class="sort-button" data-toggle="tooltip" title="Sort alphabetically"><i class="fas fa-sort-alpha-down"></i></a>
+            <a href="javascript:void(0)" id="sortAirportsValue" class="sort-button" data-toggle="tooltip" title="Sort by flights count"><i class="fas fa-sort-amount-down"></i></a>
+            <div class="list-group airport-list" id="airports" style="height: 500px; overflow-y: scroll">
+                <a href="javascript:void(0)" data-value="_ALL" class="list-group-item list-group-item-action active">
+                    <b>All</b>
+                </a>
+                <div class="airports-items">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h1>Airports with the most/least delays</h1>
+    <h1>Airlines with the most/least delays</h1>
 </div>
-
-
-<h1>The most/least active airports</h1>
-<h1>Airports with the most/least delays</h1>
-<h1>Airlines with the most/least delays</h1>
 
 <script>
     async function makeMonthsPlot() {
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        const data = (await d3.json('months.json'))
+        const data = (await d3.json('data/months.json'))
             .map((it) => ({name: monthNames[it.month - 1], value: it.count}));
 
         const svg = d3.select('#monthsPlot');
@@ -86,12 +144,116 @@ It has information about flights for major US airlines in 2015 (arrival/departur
         svg.append('g').call(yAxis);
     }
 
+    function showAirportsList(airports, sortFunc) {
+        const lst = $('#airports');
+        const selectedCode = lst.find('a.active').data('value');
+        const lstItems = lst.find('.airports-items').empty();
+
+        const airportsArr = Object.values(airports);
+        if (sortFunc !== undefined) {
+            airportsArr.sort(sortFunc);
+        }
+
+        airportsArr.forEach(airport => {
+            const html = `<a href="javascript:void(0)" data-value="${airport.iata_code}" class="list-group-item list-group-item-action">
+                    ${airport.iata_code}
+                    <div style="">${airport.airport}, ${airport.city}, ${airport.state}</div>
+                    <span data-toggle="tooltip" title="Number of incoming/outgoing airports and flights">
+                    in <b>${airport.incomingAirports.length} (${airport.incomingFlightsCount})</b>,
+                    out <b>${airport.outgoingAirports.length} (${airport.outgoingFlightsCount})</b></span>
+                </a>`;
+            lstItems.append(html);
+        });
+
+        lst.find(`a[data-value="${selectedCode}"]`).addClass('active');
+    }
+
+    function drawRoutes(markersLayer, routes, airports) {
+        markersLayer.clearLayers();
+
+        const weightScaler = d3.scaleLinear()
+            .domain([0, d3.max(routes, r => r.count)])
+            .range([0, 2]);
+
+        routes.forEach(route => {
+            const originAirport = airports[route.origin_airport];
+            const destinationAirport = airports[route.destination_airport];
+
+            const pointList = [
+                [Number(originAirport.latitude), Number(originAirport.longitude)],
+                [Number(destinationAirport.latitude), Number(destinationAirport.longitude)]
+            ];
+
+            markersLayer.addLayer(L.polyline(pointList, {color: 'red', weight: weightScaler(route.count)}));
+        });
+    }
+
+    async function makeRoutesMap() {
+        const request1 = d3.json('data/airports.json');
+        const request2 = d3.json('data/routes.json');
+
+        const airports = await request1;
+        const routes = await request2;
+
+        Object.values(airports).forEach(airport => {
+            airport.incomingAirports = routes
+                .filter(route => route.destination_airport === airport.iata_code)
+                .map(route => ({ code: route.origin_airport, count: route.count }));
+            airport.outgoingAirports = routes
+                .filter(route => route.origin_airport === airport.iata_code)
+                .map(route => ({ code: route.destination_airport, count: route.count }));
+            airport.incomingFlightsCount = airport.incomingAirports.reduce((acc, it) => acc + it.count, 0);
+            airport.outgoingFlightsCount = airport.outgoingAirports.reduce((acc, it) => acc + it.count, 0);
+        });
+
+        showAirportsList(airports);
+
+        $('#sortAirportsCode').click(() => showAirportsList(airports, (a, b) => a.iata_code.localeCompare(b.iata_code)));
+        $('#sortAirportsValue').click(() => showAirportsList(airports, (a, b) => b.incomingFlightsCount - a.incomingFlightsCount));
+
+        const map = L.map('routesMap').setView([37.8, -96.9], 4);
+
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 10,
+            id: 'mapbox.streets',
+            accessToken: 'pk.eyJ1IjoiYWxleHAxMTIyMzMiLCJhIjoiY2ppMGw0YXB2MTVqNzNrbnk0ZHBobmZuMyJ9.abqJyDi5w6lF6P6ybfeZeQ'
+        }).addTo(map);
+
+        const markersLayer = new L.LayerGroup();
+        markersLayer.addTo(map);
+
+        drawRoutes(markersLayer, routes, airports);
+
+        const updateRoutes = () => {
+            const airportCode = $('#airports').find('a.active').data('value');
+            const showOrigin = $('#chkOrigin').prop('checked');
+            const showDest = $('#chkDest').prop('checked');
+
+            const selectedRoutes = airportCode === '_ALL' ? routes :
+                    routes.filter(route => (showOrigin && route.origin_airport === airportCode) ||
+                        (showDest && route.destination_airport === airportCode));
+
+            drawRoutes(markersLayer, selectedRoutes, airports);
+        };
+
+        $('#airports').on('click', 'a', e => {
+            const element = $(e.target).closest('a');
+            element.closest('.list-group').find('a.active').removeClass("active");
+            element.addClass("active").siblings();
+
+            updateRoutes();
+        });
+        $('#chkOrigin').click(updateRoutes);
+        $('#chkDest').click(updateRoutes);
+    }
+
     async function checkFileAccess() {
         const onError = function () {
-            document.getElementById('loadError').style.display = "block";
+            document.getElementById('loadError').style.display = 'block';
         };
         try {
-            const d = await d3.json("months.json");
+            await d3.json('data/months.json');
         } catch (e) {
             onError();
             throw e;
@@ -104,6 +266,10 @@ It has information about flights for major US airlines in 2015 (arrival/departur
     checkFileAccess();
 
     makeMonthsPlot();
+
+    makeRoutesMap();
+
+    $('[data-toggle="tooltip"]').tooltip();
 </script>
 </body>
 </html>
