@@ -1,0 +1,36 @@
+.plot-title {
+    margin-bottom: 0;
+}
+.plot {
+    font: 10px sans-serif;
+}
+
+.tick line {
+    opacity: 0.3;
+}
+
+.airport-list a {
+    padding: 0.75rem 0.5rem;
+}
+
+.sort-button {
+    margin-right: 6px;
+}
+.sort-button i {
+    font-size: 20px;
+}
+
+.code {
+    color: black;
+    background-color: #f3f3f3;
+    padding: 3px 6px;
+}
+.code-panel {
+    padding: 0;
+}
+.code-panel pre {
+    margin: 0;
+}
+.code-spoiler {
+    margin-bottom: 10px;
+}
