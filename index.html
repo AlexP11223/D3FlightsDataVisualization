@@ -239,27 +239,33 @@ GROUP BY origin_airport</code></pre>
     }
 
     function showAirportsList(airports, sortFunc) {
-        const lst = $('#airports');
-        const selectedCode = lst.find('a.active').data('value');
-        const lstItems = lst.find('.airports-items').empty();
+        const lst = d3.select('#airports');
+        const selectedCode = lst.select('a.active').attr('data-value');
 
         const airportsArr = Object.values(airports);
         if (sortFunc !== undefined) {
             airportsArr.sort(sortFunc);
         }
 
-        airportsArr.forEach(airport => {
-            const html = `<a href="javascript:void(0)" data-value="${airport.iata_code}" class="list-group-item list-group-item-action">
-                    ${airport.iata_code}
-                    <div style="">${airport.airport}, ${airport.city}, ${airport.state}</div>
+        lst
+            .select('.airports-items')
+            .selectAll('a')
+            .remove();
+
+        lst
+            .select('.airports-items')
+            .selectAll('a')
+            .data(airportsArr)
+            .enter()
+            .append('a').attr('href', 'javascript:void(0)').attr('class', 'list-group-item list-group-item-action')
+            .attr('data-value', airport => airport.iata_code)
+            .html(airport => `${airport.iata_code}
+                    <div>${airport.airport}, ${airport.city}, ${airport.state}</div>
                     <span data-toggle="tooltip" title="Number of incoming/outgoing airports and flights">
                     in <b>${airport.incomingAirports.length} (${airport.incomingFlightsCount})</b>,
-                    out <b>${airport.outgoingAirports.length} (${airport.outgoingFlightsCount})</b></span>
-                </a>`;
-            lstItems.append(html);
-        });
+                    out <b>${airport.outgoingAirports.length} (${airport.outgoingFlightsCount})</b></span>`);
 
-        lst.find(`a[data-value="${selectedCode}"]`).addClass('active');
+        lst.select(`a[data-value="${selectedCode}"]`).classed('active', true);
     }
 
     function drawRoutes(markersLayer, routes, airports) {
