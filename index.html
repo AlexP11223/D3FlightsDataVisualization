@@ -21,7 +21,6 @@
         }
         .plot {
             font: 10px sans-serif;
-            padding: 0 20px;
         }
 
          .tick line {
@@ -43,6 +42,18 @@
         .sort-button i {
             font-size: 20px;
         }
+
+        .code {
+            color: black;
+            background-color: #f3f3f3;
+            padding: 3px 6px;
+        }
+        .code-panel {
+            padding: 0;
+        }
+        .code-panel pre {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -51,20 +62,40 @@
 <div class="container">
     <div id="loadError" style="display: none; color: red; font-size: 20px;">
         <p>Failed to access data files. Are you trying to open this page as a local HTML file?</p>
-        <p>Use a web server (such as <code style="color: black;">npm install -g http-server</code> and run <code style="color: black;">http-server</code>)
+        <p>Use a web server (such as <code class="code">npm install -g http-server</code> and run <code class="code">http-server</code>)
             or go to <a href="https://alexp11223.github.io/D3FlightsDataVisualization/">https://alexp11223.github.io/D3FlightsDataVisualization/</a>
         </p>
     </div>
 
-    <a href="https://www.kaggle.com/usdot/flight-delays">Kaggle 2015 Flight Delays and Cancellations</a> dataset.
+    <p>
+        <a href="https://www.kaggle.com/usdot/flight-delays">Kaggle 2015 Flight Delays and Cancellations</a> dataset
+        (with <a href="https://www.kaggle.com/smiller933/fixing-airport-codes">this fix</a> for some airport codes).
     It has information about flights for major US airlines in 2015 (arrival/departure times, delay, flight ID, distance, ...)
     and information about airport cities/coordinates, airlines.
+    </p>
+    <p>
+        The data was retrieved via SQL queries in PostgresSQL database, using <code class="code">ROW_TO_JSON</code> for export.
+    </p>
 
-    <h1>The most/least busiest month of the year</h1>
+    <h1>The most/least busiest months of the year</h1>
     <h3 class="plot-title">Flights per month</h3>
-    <div class="row">
-        <svg id="monthsPlot" class="plot" width="600" height="300"></svg>
+    <svg id="monthsPlot" class="plot" width="600" height="300"></svg>
+
+    <div class="code-spoiler">
+        <a data-toggle="collapse" role="button">SQL</a>
+        <div class="collapse">
+            <div class="card card-body code-panel">
+                <pre class="code"><code>SELECT month, count(*)
+FROM flights
+GROUP BY month</code></pre>
+            </div>
+        </div>
     </div>
+
+    <p>
+        As we can see, the most busiest months are in the summer (especially July-August), probably because of holidays,
+        also there is some increases in the beginning of Spring (Easter, Spring break?).
+    </p>
 
     <h1>The most active airports</h1>
     Line width depends on number of flights.
@@ -91,6 +122,17 @@
                 <div class="airports-items">
 
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="code-spoiler">
+        <a data-toggle="collapse" role="button">SQL</a>
+        <div class="collapse">
+            <div class="card card-body code-panel">
+                <pre class="code"><code>SELECT origin_airport, destination_airport, count(*)
+FROM flights
+GROUP BY origin_airport, destination_airport</code></pre>
             </div>
         </div>
     </div>
@@ -270,6 +312,12 @@
     makeRoutesMap();
 
     $('[data-toggle="tooltip"]').tooltip();
+
+    $('.code-spoiler .collapse').each((i, element) => {
+        const id = `codeSpoiler${i}`;
+        $(element).attr('id', id);
+        $(element).siblings('a').attr('href', `#${id}`);
+    })
 </script>
 </body>
 </html>
