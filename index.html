@@ -31,11 +31,6 @@
             padding: 0.75rem 0.5rem;
         }
 
-        .no-padding-col {
-            padding-left: 0;
-            padding-right: 0;
-        }
-
         .sort-button {
             margin-right: 6px;
         }
@@ -125,7 +120,7 @@ GROUP BY date</code></pre>
         <div class="col-xl-8">
             <div id="routesMap" style="width: 100%; height: 560px"></div>
         </div>
-        <div class="col no-padding-col">
+        <div class="col">
             <h3>Select airport</h3>
             <div class="form-check form-check-inline" data-toggle="tooltip" title="Outgoing routes from the selected airport">
                 <input class="form-check-input" type="checkbox" name="chkOrigin" id="chkOrigin" value="origin" checked>
@@ -160,6 +155,31 @@ GROUP BY origin_airport, destination_airport</code></pre>
     </div>
 
     <h1>Airports with the most/least delays</h1>
+    <p>Circle size represents airport size (number of flights) and opacity shows its' delay rate (counting only delays that were longer than 10 minutes).</p>
+    <p>This map uses bigger scale to reduce circle sizes and overlapping, however it's still present in some cases.</p>
+    <div class="row">
+        <div class="col-xl-12">
+            <div id="delaysMap" style="width: 100%; height: 700px"></div>
+        </div>
+    </div>
+
+    <div class="code-spoiler">
+        <a data-toggle="collapse" role="button">SQL</a>
+        <div class="collapse">
+            <div class="card card-body code-panel">
+                <pre class="code"><code>SELECT origin_airport,
+       ROUND(count(*) / (SELECT count(*) FROM flights WHERE origin_airport=f.origin_airport)::decimal, 4) as delay_rate,
+       (SELECT count(*) FROM flights WHERE origin_airport=f.origin_airport) as flights_count
+FROM flights as f
+WHERE departure_delay > 10
+GROUP BY origin_airport</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <p>From this map we can see that most airports have at least 10% of delayed flights.</p>
+    <p>Also it looks like delays are more likely in smaller airports, such as 2 airports on Alaska with 45+%. All of the bigger airports do not have such high delay rate.</p>
+
     <h1>Airlines with the most/least delays</h1>
 </div>
 
@@ -357,6 +377,53 @@ GROUP BY origin_airport, destination_airport</code></pre>
         $('#chkDest').click(updateRoutes);
     }
 
+    function round(num, scale) {
+        // noinspection JSCheckFunctionSignatures
+        return +(Math.round(num + "e+" + scale) + "e-" + scale);
+    }
+
+    async function makeDelaysMap() {
+        const request1 = d3.json('data/airports.json');
+        const request2 = d3.json('data/airports_delays.json');
+
+        const airports = await request1;
+        const delays = await request2;
+
+        const map = L.map('delaysMap').setView([37.8, -96.9], 5);
+
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 10,
+            id: 'mapbox.streets',
+            accessToken: 'pk.eyJ1IjoiYWxleHAxMTIyMzMiLCJhIjoiY2ppMGw0YXB2MTVqNzNrbnk0ZHBobmZuMyJ9.abqJyDi5w6lF6P6ybfeZeQ'
+        }).addTo(map);
+
+        const opacityScaler = d3.scaleLinear()
+            .domain([d3.min(delays, it => it.delay_rate), d3.max(delays, it => it.delay_rate)])
+            .range([0.05, 0.9]);
+        const sizeScaler = d3.scaleLinear()
+            .domain([0, d3.max(delays, it => it.flights_count)])
+            .range([20000, 90000]);
+
+        delays.sort((a, b) => b.flights_count - a.flights_count); // smaller circles must be on top to be clickable
+
+        delays.forEach(it => {
+            const airport = airports[it.origin_airport];
+
+            const point = [Number(airport.latitude), Number(airport.longitude)];
+
+            const circle = L.circle(point, {
+                fillColor: 'red',
+                fillOpacity: opacityScaler(it.delay_rate),
+                radius: sizeScaler(it.flights_count),
+                stroke: false
+            }).addTo(map);
+            circle.bindPopup(`${airport.iata_code}
+                    <p>${airport.airport}, ${airport.city}, ${airport.state}</p>
+                    <p><b>${round(it.delay_rate*100, 2)}%</b> delayed (<b>${Math.trunc(it.flights_count * it.delay_rate)}</b> of <b>${it.flights_count}</b> flights)`);
+        });
+    }
+
     async function checkFileAccess() {
         const onError = function () {
             document.getElementById('loadError').style.display = 'block';
@@ -379,6 +446,8 @@ GROUP BY origin_airport, destination_airport</code></pre>
     makeDatesPlot();
 
     makeRoutesMap();
+
+    makeDelaysMap();
 
     $('[data-toggle="tooltip"]').tooltip();
 
