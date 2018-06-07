@@ -78,6 +78,7 @@
     </p>
 
     <h1>The most/least busiest months of the year</h1>
+
     <h3 class="plot-title">Flights per month</h3>
     <svg id="monthsPlot" class="plot" width="600" height="300"></svg>
 
@@ -92,9 +93,27 @@ GROUP BY month</code></pre>
         </div>
     </div>
 
+    <h3 class="plot-title">Flights by date</h3>
+    <svg id="datesPlot" class="plot" width="800" height="300"></svg>
+
+    <div class="code-spoiler">
+        <a data-toggle="collapse" role="button">SQL</a>
+        <div class="collapse">
+            <div class="card card-body code-panel">
+                <pre class="code"><code>SELECT make_date(year, month, day) as date, count(*)
+FROM flights
+GROUP BY date</code></pre>
+            </div>
+        </div>
+    </div>
+
     <p>
         As we can see, the most busiest months are in the summer (especially July-August), probably because of holidays,
-        also there is some increases in the beginning of Spring (Easter, Spring break?).
+        also there is some increases in the beginning of Spring (Easter, Spring break?),
+        and the least active period is from middle of January to middle of February.
+    </p>
+    <p>
+        Also it depends on day of the week: there is a huge drop of activity on Saturdays, probably related to business trips.
     </p>
 
     <h1>The most active airports</h1>
@@ -184,6 +203,51 @@ GROUP BY origin_airport, destination_airport</code></pre>
 
         svg.append('g').call(xAxis);
         svg.append('g').call(yAxis);
+    }
+
+    async function makeDatesPlot() {
+        const data = (await d3.json('data/dates.json'))
+            .map((it) => ({date: Date.parse(it.date), value: it.count}));
+
+        const svg = d3.select('#datesPlot');
+
+        const width = Number(svg.attr('width'));
+        const height = Number(svg.attr('height'));
+        const margin = ({top: 20, right: 0, bottom: 30, left: 40});
+
+        const x = d3.scaleTime()
+            .domain(d3.extent(data, d => d.date))
+            .range([margin.left, width - margin.right]);
+
+        const y = d3.scaleLinear()
+            .domain([10000, d3.max(data, d => d.value)]).nice()
+            .range([height - margin.bottom, margin.top]);
+
+        const xAxis = g => g
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0));
+
+        const yAxis = g => g
+            .attr('transform', `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y).tickSize(-width, 0, 0))
+            .call(g => g.select(".domain").remove());
+
+        const line = d3.line()
+            .curve(d3.curveBasis)
+            .x(d => x(d.date))
+            .y(d => y(d.value));
+
+        svg.append("path")
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("d", line);
+
+        svg.append("g").call(xAxis);
+        svg.append("g").call(yAxis);
     }
 
     function showAirportsList(airports, sortFunc) {
@@ -308,6 +372,8 @@ GROUP BY origin_airport, destination_airport</code></pre>
     checkFileAccess();
 
     makeMonthsPlot();
+
+    makeDatesPlot();
 
     makeRoutesMap();
 
