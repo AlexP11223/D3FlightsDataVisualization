@@ -1,0 +1,16 @@
+[
+{"airline":"AA","delay_rate":0.0246,"flights_count":725984},
+{"airline":"F9","delay_rate":0.0041,"flights_count":90836},
+{"airline":"WN","delay_rate":0.0546,"flights_count":1261855},
+{"airline":"UA","delay_rate":0.0244,"flights_count":515723},
+{"airline":"MQ","delay_rate":0.0110,"flights_count":294632},
+{"airline":"NK","delay_rate":0.0062,"flights_count":117379},
+{"airline":"DL","delay_rate":0.0256,"flights_count":875881},
+{"airline":"EV","delay_rate":0.0190,"flights_count":571977},
+{"airline":"HA","delay_rate":0.0013,"flights_count":76272},
+{"airline":"OO","delay_rate":0.0190,"flights_count":588353},
+{"airline":"B6","delay_rate":0.0114,"flights_count":267048},
+{"airline":"VX","delay_rate":0.0022,"flights_count":61903},
+{"airline":"AS","delay_rate":0.0039,"flights_count":172521},
+{"airline":"US","delay_rate":0.0059,"flights_count":198715}
+]

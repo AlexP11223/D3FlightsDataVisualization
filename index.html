@@ -148,6 +148,24 @@ GROUP BY origin_airport</code></pre>
     <p>Also it looks like delays are more likely in smaller airports, such as 2 airports on Alaska with 45+%. All of the bigger airports do not have such high delay rate.</p>
 
     <h1>Airlines with the most/least delays</h1>
+    <p>Circle size represents airline size (number of flights) and Y axis shows its' delay rate (counting only delays that were longer than 10 minutes).</p>
+    <svg id="airlinesDelaysPlot" class="plot" width="800" height="300"></svg>
+
+    <div class="code-spoiler">
+        <a data-toggle="collapse" role="button">SQL</a>
+        <div class="collapse">
+            <div class="card card-body code-panel">
+                <pre class="code"><code>SELECT airline,
+       ROUND(count(*) / (SELECT count(*) FROM flights WHERE f.airline=f.airline)::decimal, 4) as delay_rate,
+       (SELECT count(*) FROM flights WHERE airline=f.airline) as flights_count
+FROM flights as f
+WHERE departure_delay > 10
+GROUP BY airline</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <p>The chart shows that most of the delays occur on flights from big airlines, smaller airlines seem to have less delays.</p>
 </div>
 
 <script>
@@ -455,6 +473,52 @@ GROUP BY origin_airport</code></pre>
                     <p><b>${round(it.delay_rate*100, 2)}%</b> delayed (<b>${Math.trunc(it.flights_count * it.delay_rate)}</b> of <b>${it.flights_count}</b> flights)`);
         });
     }
+    async function makeAirlinesDelaysPlot() {
+        const data = (await d3.json('data/airlines_delays.json'))
+            .map((it, ind) => ({name: it.airline, index: ind, value: it.delay_rate * 100, size: it.flights_count}));
+
+        const svg = d3.select('#airlinesDelaysPlot');
+
+        const width = Number(svg.attr('width'));
+        const height = Number(svg.attr('height'));
+        const margin = ({top: 20, right: 0, bottom: 30, left: 40});
+
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.name))
+            .range([margin.left, width - margin.right])
+            .padding(0.1);
+
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.value)]).nice()
+            .range([height - margin.bottom, margin.top]);
+
+        const sizeScaler = d3.scaleLinear()
+            .domain([d3.min(data, it => it.size), d3.max(data, it => it.size)])
+            .range([8, 20]);
+
+        const itemColor = d3.scaleOrdinal(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
+            "#d95f02", "#e7298a", "#7570b3", "#1b9e77"]);
+
+        const xAxis = g => g
+            .attr('transform', `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x).tickSize(-height, 0, 0));
+
+        const yAxis = g => g
+            .attr('transform', `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y).tickFormat(d => d.toFixed(1) + '%').tickSize(-width, 0, 0))
+            .call(g => g.select(".domain").remove());
+
+        svg.append('g')
+            .selectAll('circle')
+            .data(data).enter().append('circle')
+            .style('fill', d => itemColor(d.index))
+            .attr('cx', d => x(d.name) + x.bandwidth() / 2)
+            .attr('cy', d => y(d.value))
+            .attr('r', d => sizeScaler(d.size));
+
+        svg.append('g').call(xAxis);
+        svg.append('g').call(yAxis);
+    }
 
     async function checkFileAccess() {
         const onError = function () {
@@ -480,6 +544,8 @@ GROUP BY origin_airport</code></pre>
     makeRoutesMap();
 
     makeDelaysMap();
+
+    makeAirlinesDelaysPlot();
 
     $('[data-toggle="tooltip"]').tooltip();
 
