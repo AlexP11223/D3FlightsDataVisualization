@@ -1,5 +1,5 @@
 .plot-title {
-    margin-bottom: 0;
+    margin-bottom: 5px;
 }
 .plot {
     font: 10px sans-serif;
@@ -7,6 +7,27 @@
 
 .tick line {
     opacity: 0.3;
+}
+
+.focus circle {
+    fill: #F1F3F3;
+    stroke: #6F257F;
+    stroke-width: 5px;
+}
+
+.plot-tooltip rect {
+    fill: #626D71;
+}
+
+.plot-tooltip text {
+    fill: #ffffff;
+    font: 14px sans-serif;
+}
+
+.hover-line {
+    stroke: #6F257F;
+    stroke-width: 2px;
+    stroke-dasharray: 3,3;
 }
 
 .airport-list a {

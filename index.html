@@ -16,6 +16,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <link rel="stylesheet" href="main.css">
+    <script src="utils.js"></script>
 </head>
 <body>
 
@@ -54,6 +55,7 @@ GROUP BY month</code></pre>
     </div>
 
     <h3 class="plot-title">Flights by date</h3>
+    <div>Hover to see data at the selected point.</div>
     <svg id="datesPlot" class="plot" width="800" height="300"></svg>
 
     <div class="code-spoiler">
@@ -195,7 +197,7 @@ GROUP BY origin_airport</code></pre>
 
     async function makeDatesPlot() {
         const data = (await d3.json('data/dates.json'))
-            .map((it) => ({date: Date.parse(it.date), value: it.count}));
+            .map((it) => ({date: new Date(Date.parse(it.date)), value: it.count}));
 
         const svg = d3.select('#datesPlot');
 
@@ -236,6 +238,70 @@ GROUP BY origin_airport</code></pre>
 
         svg.append("g").call(xAxis);
         svg.append("g").call(yAxis);
+
+        const tooltip = svg.append("g")
+            .attr("class", "plot-tooltip")
+            .style("display", "none");
+
+        tooltip.append("rect")
+            .attr("rx", 10)
+            .attr("width", 210)
+            .attr("height", 70)
+            .attr("ry", 10);
+        tooltip.append("text")
+            .attr("data-line", 1)
+            .attr("x", 10)
+            .attr("y", 20)
+            .attr("dy", ".31em");
+        tooltip.append("text")
+            .attr("data-line", 2)
+            .attr("x", 10)
+            .attr("y", 40)
+            .attr("dy", ".31em");
+
+        const focus = svg.append("g")
+            .attr("class", "focus")
+            .style("display", "none");
+
+        focus.append("line")
+            .attr("class", "x-hover-line hover-line")
+            .attr("y1", 0)
+            .attr("y2", height);
+
+        focus.append("line")
+            .attr("class", "y-hover-line hover-line")
+            .attr("x1", width)
+            .attr("x2", width);
+
+        focus.append("circle")
+            .attr("r", 7.5);
+
+        function mouseMove() {
+            const bisectDate = d3.bisector(d => d.date).right;
+            const mousePos = d3.mouse(svg.node());
+            const x0 = x.invert(d3.mouse(this)[0]),
+                i = bisectDate(data, x0, 1),
+                d0 = data[i - 1],
+                d1 = data[i],
+                d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+            focus.attr("transform", `translate(${x(d.date)}, ${y(d.value)})`);
+            tooltip.attr("transform", `translate(${mousePos[0] + (mousePos[0] > 230 ? -230 : 10)}, ${mousePos[1]})`);
+            tooltip.select('text[data-line="1"]').text(`${dateWithWeekday(d.date)}`);
+            tooltip.select('text[data-line="2"]').text(`${d.value} flights`);
+            focus.select(".x-hover-line").attr("y2", height - y(d.value));
+            focus.select(".y-hover-line").attr("x2", width + width);
+        }
+
+        svg
+            .on("mouseover", () => {
+                focus.style("display", null);
+                tooltip.style("display", null);
+            })
+            .on("mouseout", () => {
+                focus.style("display", "none");
+                tooltip.style("display", "none");
+            })
+            .on("mousemove", mouseMove);
     }
 
     function showAirportsList(airports, sortFunc) {
@@ -346,11 +412,6 @@ GROUP BY origin_airport</code></pre>
         });
         $('#chkOrigin').click(updateRoutes);
         $('#chkDest').click(updateRoutes);
-    }
-
-    function round(num, scale) {
-        // noinspection JSCheckFunctionSignatures
-        return +(Math.round(num + "e+" + scale) + "e-" + scale);
     }
 
     async function makeDelaysMap() {
