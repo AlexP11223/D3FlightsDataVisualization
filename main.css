@@ -56,6 +56,11 @@
     margin-bottom: 10px;
 }
 
+.navbar {
+    margin-bottom: 10px;
+    font-size: 16pt;
+}
+
 footer {
     padding: 10px 0;
 }

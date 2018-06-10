@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title></title>
+    <script src="https://d3js.org/d3.v5.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    <link rel="stylesheet" href="main.css">
+    <script src="utils.js"></script>
+    <script src="common.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div>
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Main page</a></li>
+                <li class="nav-item active"><a class="nav-link" href="stats.html">Dataset statistics</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <p>
+        <a href="https://www.kaggle.com/usdot/flight-delays">Kaggle 2015 Flight Delays and Cancellations</a> dataset
+        (with <a href="https://www.kaggle.com/smiller933/fixing-airport-codes">this fix</a> for some airport codes).
+    It has information about flights for major US airlines in 2015 (arrival/departure times, delay, flight ID, distance, ...)
+    and information about airport cities/coordinates, airlines.
+    </p>
+    <p>
+        The data was retrieved via SQL queries in PostgresSQL database, using <code class="code">ROW_TO_JSON</code> for export.
+    </p>
+
+    <footer>
+        <hr/>
+        <a href="https://github.com/AlexP11223/D3FlightsDataVisualization">Source code</a>
+    </footer>
+</div>
+
+<script>
+
+</script>
+
+<!--suppress JSIgnoredPromiseFromCall -->
+<script>
+    checkFileAccess();
+</script>
+</body>
+</html>
