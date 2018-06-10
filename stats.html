@@ -36,6 +36,46 @@
         The data was retrieved via SQL queries in PostgresSQL database, using <code class="code">ROW_TO_JSON</code> for export.
     </p>
 
+    <table class="table table-bordered" id="attributesTable">
+        <thead>
+        <tr>
+            <th scope="col">Attribute</th>
+            <th scope="col">Description</th>
+            <th scope="col">Type</th>
+            <th scope="col">Min</th>
+            <th scope="col">Max</th>
+            <th scope="col">Average</th>
+            <th scope="col">Median</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <p><i>Attribute types according to these definitions: <a href="http://isoconsultantpune.com/statistics-in-quality/">isoconsultantpune.com/statistics-in-quality/</a></i></p>
+
+    <div class="code-spoiler">
+        <a data-toggle="collapse" role="button">SQL</a>
+        <div class="collapse">
+            <div class="card card-body code-panel">
+                <pre class="code"><code>SELECT
+  MIN(distance) as min_distance, MAX(distance) as max_distance, ROUND(AVG(distance), 2) as avg_distance, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by distance) as median_distance,
+  MIN(departure_delay) as min_departure_delay, MAX(departure_delay) as max_departure_delay, ROUND(AVG(departure_delay), 2) as avg_departure_delay, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by departure_delay) as median_departure_delay,
+  MIN(arrival_delay) as min_arrival_delay, MAX(arrival_delay) as max_arrival_delay, ROUND(AVG(arrival_delay), 2) as avg_arrival_delay, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by arrival_delay) as median_arrival_delay,
+  MIN(air_time) as min_air_time, MAX(air_time) as max_air_time, ROUND(AVG(air_time), 2) as avg_air_time, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by air_time) as median_air_time,
+  MIN(scheduled_time) as min_scheduled_time, MAX(scheduled_time) as max_scheduled_time, ROUND(AVG(scheduled_time), 2) as avg_scheduled_time, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by scheduled_time) as median_scheduled_time,
+  MIN(elapsed_time) as min_elapsed_time, MAX(elapsed_time) as max_elapsed_time, ROUND(AVG(elapsed_time), 2) as avg_elapsed_time, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by elapsed_time) as median_elapsed_time,
+  MIN(air_system_delay) as min_air_system_delay, MAX(air_system_delay) as max_air_system_delay, ROUND(AVG(air_system_delay), 2) as avg_air_system_delay, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by air_system_delay) as median_air_system_delay,
+  MIN(security_delay) as min_security_delay, MAX(security_delay) as max_security_delay, ROUND(AVG(security_delay), 2) as avg_security_delay, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by security_delay) as median_security_delay,
+  MIN(airline_delay) as min_airline_delay, MAX(airline_delay) as max_airline_delay, ROUND(AVG(airline_delay), 2) as avg_airline_delay, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by airline_delay) as median_airline_delay,
+  MIN(late_aircraft_delay) as min_late_aircraft_delay, MAX(late_aircraft_delay) as max_late_aircraft_delay, ROUND(AVG(late_aircraft_delay), 2) as avg_late_aircraft_delay, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by late_aircraft_delay) as median_late_aircraft_delay,
+  MIN(weather_delay) as min_weather_delay, MAX(weather_delay) as max_weather_delay, ROUND(AVG(weather_delay), 2) as avg_weather_delay, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by weather_delay) as median_weather_delay,
+  MIN(taxi_in) as min_taxi_in, MAX(taxi_in) as max_taxi_in, ROUND(AVG(taxi_in), 2) as avg_taxi_in, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by taxi_in) as median_taxi_in,
+  MIN(taxi_out) as min_taxi_out, MAX(taxi_out) as max_taxi_out, ROUND(AVG(taxi_out), 2) as avg_taxi_out, PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER by taxi_out) as median_taxi_out
+FROM flights</code></pre>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <hr/>
         <a href="https://github.com/AlexP11223/D3FlightsDataVisualization">Source code</a>
@@ -43,11 +83,30 @@
 </div>
 
 <script>
+    async function makeAttributesTable() {
+        const attributes = (await d3.json('data/attributes.json'));
 
+        const table = d3.select('#attributesTable');
+        const trs = table
+            .select('tbody')
+            .selectAll('tr')
+            .data(attributes)
+            .enter()
+            .append('tr');
+
+        trs.append('th').attr('scope', 'row').text(d => capitalize(d.name.replace(/_/g, ' ')));
+        trs.append('td').text(d => d.description);
+        trs.append('td').text(d => capitalize(d.type));
+        trs.append('td').text(d => d.min);
+        trs.append('td').text(d => d.max);
+        trs.append('td').text(d => d.avg);
+        trs.append('td').text(d => d.median);
+    }
 </script>
 
 <!--suppress JSIgnoredPromiseFromCall -->
 <script>
+    makeAttributesTable();
 </script>
 </body>
 </html>

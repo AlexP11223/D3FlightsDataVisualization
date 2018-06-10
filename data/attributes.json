@@ -1,0 +1,208 @@
+[
+{
+    "name": "date",
+    "description": "Flight date",
+    "min": "2015/1/1",
+    "max": "2015/12/31",
+    "type": "interval"
+},
+{
+    "name": "airline",
+    "description": "Airline identifier assigned by US DOT",
+    "type": "nominal"
+},
+{
+    "name": "flight_number",
+    "description": "Flight identifier",
+    "type": "nominal"
+},
+{
+    "name": "tail_number",
+    "description": "Aircraft identifier",
+    "type": "nominal"
+},
+{
+    "name": "origin_airport",
+    "description": "Origin airport identifier (IATA code)",
+    "type": "nominal"
+},
+{
+    "name": "destination_airport",
+    "description": "Destination airport identifier (IATA code)",
+    "type": "nominal"
+},
+{
+    "name": "distance",
+    "description": "Distance between the airports",
+    "min": 21,
+    "max": 4983,
+    "avg": 822.36,
+    "median": 647,
+    "type": "ratio"
+},
+{
+    "name": "scheduled_departure",
+    "description": "Planned departure time (hours, minutes)",
+    "min": "00:01",
+    "max": "23:59",
+    "type": "ratio"
+},
+{
+    "name": "departure_time",
+    "description": "Departure time (hours, minutes)",
+    "min": "00:01",
+    "max": "24:00",
+    "type": "ratio"
+},
+{
+    "name": "departure_delay",
+    "description": "Total departure delay, in minutes (can be negative)",
+    "min": -82,
+    "max": 1988,
+    "avg": 9.37,
+    "median": -2,
+    "type": "interval"
+},
+{
+    "name": "scheduled_arrival",
+    "description": "Planned arrival time (hours, minutes)",
+    "min": "00:01",
+    "max": "24:00",
+    "type": "ratio"
+},
+{
+    "name": "arrival_time",
+    "description": "Arrival time (hours, minutes)",
+    "min": "00:01",
+    "max": "24:00",
+    "type": "ratio"
+},
+{
+    "name": "arrival_delay",
+    "description": "Total arrival delay, in minutes (can be negative)",
+    "min": -87,
+    "max": 1971,
+    "avg": 4.41,
+    "median": -5,
+    "type": "interval"
+},
+{
+    "name": "scheduled_time",
+    "description": "Planned time amount needed for the flight trip, in minutes",
+    "min": 18,
+    "max": 718,
+    "avg": 141.69,
+    "median": 123,
+    "type": "ratio"
+},
+{
+    "name": "elapsed_time",
+    "description": "Actual time amount for the flight trip (or sum of air time, taxi out, taxi in), in minutes",
+    "min": 14,
+    "max": 766,
+    "avg": 137.01,
+    "median": 118,
+    "type": "ratio"
+},
+{
+    "name": "cancelled",
+    "description": "Is the flight cancelled, Yes (1) or No (0)",
+    "type": "nominal"
+},
+{
+    "name": "diverted",
+    "description": "Is the flight diverted, Yes (1) or No (0)",
+    "type": "nominal"
+},
+{
+    "name": "cancellation_reason",
+    "description": "Reason for flight cancellation: A - Airline/Carrier; B - Weather; C - National Air System; D - Security",
+    "type": "nominal"
+},
+{
+    "name": "air_system_delay",
+    "description": "Delay caused by air system, in minutes",
+    "min": 0,
+    "max": 1134,
+    "avg": 13.48,
+    "median": 2,
+    "type": "ratio"
+},
+{
+    "name": "security_delay",
+    "description": "Delay caused by security, in minutes",
+    "min": 0,
+    "max": 573,
+    "avg": 0.08,
+    "median": 0,
+    "type": "ratio"
+},
+{
+    "name": "airline_delay",
+    "description": "Delay caused by airline, in minutes",
+    "min": 0,
+    "max": 1971,
+    "avg": 18.97,
+    "median": 2,
+    "type": "ratio"
+},
+{
+    "name": "late_aircraft_delay",
+    "description": "Delay caused by aircraft, in minutes",
+    "min": 0,
+    "max": 1331,
+    "avg": 23.47,
+    "median": 3,
+    "type": "ratio"
+},
+{
+    "name": "weather_delay",
+    "description": "Delay caused by weather, in minutes",
+    "min": 0,
+    "max": 1211,
+    "avg": 2.92,
+    "median": 0,
+    "type": "ratio"
+},
+{
+    "name": "wheels_off",
+    "description": "Take off time (hours, minutes)",
+    "min": "00:01",
+    "max": "24:00",
+    "type": "ratio"
+},
+{
+    "name": "wheels_on",
+    "description": "Landing time (hours, minutes)",
+    "min": "00:01",
+    "max": "24:00",
+    "type": "ratio"
+},
+{
+    "name": "air_time",
+    "description": "Time in air (between wheels off and wheels on), in minutes",
+    "min": 7,
+    "max": 690,
+    "avg": 113.51,
+    "median": 94,
+    "type": "ratio"
+},
+{
+    "name": "taxi_out",
+    "description": "Time between off-block and take off, in minutes",
+    "min": 1,
+    "max": 225,
+    "avg": 16.07,
+    "median": 14,
+    "type": "ratio"
+},
+{
+    "name": "taxi_in",
+    "description": "Time between landing and in-block, in minutes",
+    "min": 1,
+    "max": 248,
+    "avg": 7.43,
+    "median": 6,
+    "type": "ratio"
+}
+]

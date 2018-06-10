@@ -6,3 +6,7 @@ function round(num, scale) {
     // noinspection JSCheckFunctionSignatures
     return +(Math.round(num + "e+" + scale) + "e-" + scale);
 }
+
+function capitalize(str) {
+    return str.replace(/\b\w/g, l => l.toUpperCase());
+}
