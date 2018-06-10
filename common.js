@@ -25,6 +25,9 @@ async function checkFileAccess() {
 }
 
 $(function() {
+    // noinspection JSIgnoredPromiseFromCall
+    checkFileAccess();
+
     $('[data-toggle="tooltip"]').tooltip();
 
     $('.code-spoiler .collapse').each((i, element) => {
