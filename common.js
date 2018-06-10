@@ -23,3 +23,13 @@ async function checkFileAccess() {
         throw e;
     }
 }
+
+$(function() {
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $('.code-spoiler .collapse').each((i, element) => {
+        const id = `codeSpoiler${i}`;
+        $(element).attr('id', id);
+        $(element).siblings('a').attr('href', `#${id}`);
+    })
+});
