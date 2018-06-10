@@ -17,17 +17,11 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <link rel="stylesheet" href="main.css">
     <script src="utils.js"></script>
+    <script src="common.js"></script>
 </head>
 <body>
 
 <div class="container">
-    <div id="loadError" style="display: none; color: red; font-size: 20px;">
-        <p>Failed to access data files. Are you trying to open this page as a local HTML file?</p>
-        <p>Use a web server (such as <code class="code">npm install -g http-server</code> and run <code class="code">http-server</code>)
-            or go to <a href="https://alexp11223.github.io/D3FlightsDataVisualization/">https://alexp11223.github.io/D3FlightsDataVisualization/</a>
-        </p>
-    </div>
-
     <p>
         <a href="https://www.kaggle.com/usdot/flight-delays">Kaggle 2015 Flight Delays and Cancellations</a> dataset
         (with <a href="https://www.kaggle.com/smiller933/fixing-airport-codes">this fix</a> for some airport codes).
@@ -523,18 +517,6 @@ GROUP BY airline</code></pre>
 
         svg.append('g').call(xAxis);
         svg.append('g').call(yAxis);
-    }
-
-    async function checkFileAccess() {
-        const onError = function () {
-            document.getElementById('loadError').style.display = 'block';
-        };
-        try {
-            await d3.json('data/months.json');
-        } catch (e) {
-            onError();
-            throw e;
-        }
     }
 </script>
 
