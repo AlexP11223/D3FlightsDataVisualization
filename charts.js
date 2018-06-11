@@ -133,7 +133,13 @@ class PieChart extends SvgChart{
 
 class DatesLineChart extends SvgChart{
     constructor(data, svg) {
-        super(data, svg)
+        super(data, svg);
+        this._tooltipLines = [d => d.date, d => d.value];
+    }
+
+    tooltipLines(value) {
+        this._tooltipLines = value;
+        return this;
     }
 
     draw() {
@@ -181,21 +187,20 @@ class DatesLineChart extends SvgChart{
             .attr("class", "plot-tooltip")
             .style("display", "none");
 
+        const tooltipLines = this._tooltipLines;
+
         tooltip.append("rect")
             .attr("rx", 10)
             .attr("width", 210)
             .attr("height", 70)
             .attr("ry", 10);
-        tooltip.append("text")
-            .attr("data-line", 1)
-            .attr("x", 10)
-            .attr("y", 20)
-            .attr("dy", ".31em");
-        tooltip.append("text")
-            .attr("data-line", 2)
-            .attr("x", 10)
-            .attr("y", 40)
-            .attr("dy", ".31em");
+        tooltipLines.forEach((line, i) => {
+            tooltip.append("text")
+                .attr("data-line", i)
+                .attr("x", 10)
+                .attr("y", 20 + 20 * i)
+                .attr("dy", ".31em");
+        });
 
         const focus = svg.append("g")
             .attr("class", "focus")
@@ -224,8 +229,9 @@ class DatesLineChart extends SvgChart{
                 d = x0 - d0.date > d1.date - x0 ? d1 : d0;
             focus.attr("transform", `translate(${x(d.date)}, ${y(d.value)})`);
             tooltip.attr("transform", `translate(${mousePos[0] + (mousePos[0] > 230 ? -230 : 10)}, ${mousePos[1]})`);
-            tooltip.select('text[data-line="1"]').text(`${dateWithWeekday(d.date)}`);
-            tooltip.select('text[data-line="2"]').text(`${d.value} flights`);
+            tooltipLines.forEach((line, i) => {
+                tooltip.select(`text[data-line="${i}"]`).text(line(d));
+            });
             focus.select(".x-hover-line").attr("y2", height - y(d.value));
             focus.select(".y-hover-line").attr("x2", width + width);
         }

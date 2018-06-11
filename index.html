@@ -192,7 +192,9 @@ GROUP BY airline</code></pre>
 
         const svg = d3.select('#datesPlot');
 
-        new DatesLineChart(data, svg).draw();
+        new DatesLineChart(data, svg)
+            .tooltipLines([d => dateWithWeekday(d.date), d => `${d.value} flights`])
+            .draw();
     }
 
     function showAirportsList(airports, sortFunc) {
