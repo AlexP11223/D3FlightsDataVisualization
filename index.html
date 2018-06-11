@@ -348,7 +348,7 @@ GROUP BY airline</code></pre>
     }
     async function makeAirlinesDelaysPlot() {
         const data = (await d3.json('data/airlines_delays.json'))
-            .map((it, ind) => ({name: it.airline, index: ind, value: it.delay_rate * 100, size: it.flights_count}));
+            .map(it => ({name: it.airline, value: it.delay_rate * 100, size: it.flights_count}));
 
         const svg = d3.select('#airlinesDelaysPlot');
 
@@ -384,7 +384,7 @@ GROUP BY airline</code></pre>
         svg.append('g')
             .selectAll('circle')
             .data(data).enter().append('circle')
-            .style('fill', d => itemColor(d.index))
+            .style('fill', d => itemColor(d.name))
             .attr('cx', d => x(d.name) + x.bandwidth() / 2)
             .attr('cy', d => y(d.value))
             .attr('r', d => sizeScaler(d.size));
