@@ -1,8 +1,13 @@
 .plot-title {
     margin-bottom: 5px;
 }
+
 .plot {
     font: 10px sans-serif;
+}
+
+.pie {
+    font: 14px sans-serif;
 }
 
 .tick line {

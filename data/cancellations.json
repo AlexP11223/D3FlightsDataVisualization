@@ -1,0 +1,15 @@
+{
+    "states":
+    [
+        { "name":"Normal","count":5714008 },
+        { "name":"Diverted","count":15187 },
+        { "name":"Cancelled","count":89884 }
+    ],
+    "cancellation_reasons": 
+    [
+        { "name":"A","count":25262 },
+        { "name":"B","count":48851 },
+        { "name":"C","count":15749 },
+        { "name":"D","count":22 }
+    ]
+}

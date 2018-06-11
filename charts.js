@@ -51,6 +51,86 @@ class BarChart extends SvgChart{
     }
 }
 
+class PieChart extends SvgChart{
+    constructor(data, svg) {
+        super(data, svg);
+        this._colors = d3.schemeCategory10;
+    }
+
+    colors(value) {
+        this._colors = value;
+        return this;
+    }
+
+    draw() {
+        const svg = this.svg;
+        const data = this.data;
+
+        const width = Number(svg.attr('width'));
+        const height = Number(svg.attr('height'));
+        const radius = Math.min(width, height) / 2;
+
+        const color = d3.scaleOrdinal(this._colors);
+
+        const g = svg.append("g").attr("transform", `translate(${width / 2},${height / 2})`);
+
+        const total = data.reduce((acc, d) => acc + d.value, 0.0);
+
+        const pie = d3.pie()
+            .sort(null)
+            .value(d => d.value);
+
+        const path = d3.arc()
+            .outerRadius(radius - 30)
+            .innerRadius(0);
+
+        const normalLabel = d3.arc()
+            .outerRadius(radius - 100)
+            .innerRadius(radius - 40);
+        const smallSectorLabel = d3.arc()
+            .outerRadius(radius + 20)
+            .innerRadius(radius - 40);
+
+        const isSmall = d => d.data.value / total < 0.05;
+
+        const label = d => isSmall(d) ? smallSectorLabel : normalLabel;
+        const dx = (() => {
+            let map = {};
+            let smallCount = 0;
+            return d => {
+                if (map[d.data.name] !== undefined) {
+                    return map[d.data.name];
+                }
+                if (isSmall(d)) {
+                    smallCount++;
+                    map[d.data.name] = smallCount % 2 !== 0 ? "-50px" : 0;
+                    return map[d.data.name];
+                }
+                return 0;
+            }
+        })();
+
+        const arc = g.selectAll(".arc")
+            .data(pie(data))
+            .enter().append("g")
+            .attr("class", "arc");
+
+        arc.append("path")
+            .attr("d", path)
+            .attr("fill", d => color(d.data.name));
+
+        arc.append("text")
+            .attr("transform", d => `translate(${label(d).centroid(d)})`)
+            .attr("dx", d => dx(d))
+            .text(d => d.data.name);
+        arc.append("text")
+            .attr("transform", d => `translate(${label(d).centroid(d)})`)
+            .attr("dx", d => dx(d))
+            .attr("dy", '15px')
+            .text(d => `${round(d.data.value / total * 100, 2)}%`);
+    }
+}
+
 class DatesLineChart extends SvgChart{
     constructor(data, svg) {
         super(data, svg)
