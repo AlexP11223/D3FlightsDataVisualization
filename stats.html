@@ -23,6 +23,7 @@
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="index.html">Main page</a></li>
                 <li class="nav-item active"><a class="nav-link" href="stats.html">Dataset statistics</a></li>
+                <li class="nav-item"><a class="nav-link" href="badgood.html">Bad/good charts</a></li>
             </ul>
         </div>
     </nav>
@@ -156,6 +157,7 @@ GROUP BY date</code></pre>
         trs.append('td').text(d => d.avg);
         trs.append('td').text(d => d.median);
     }
+
     async function makeCancellationPlots() {
         const names = {
             'A': 'Airline',
