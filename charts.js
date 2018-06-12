@@ -7,7 +7,13 @@ class SvgChart {
 
 class BarChart extends SvgChart{
     constructor(data, svg) {
-        super(data, svg)
+        super(data, svg);
+        this._minY = 0;
+    }
+
+    minY(val) {
+        this._minY = val;
+        return this;
     }
 
     draw() {
@@ -16,7 +22,7 @@ class BarChart extends SvgChart{
 
         const width = Number(svg.attr('width'));
         const height = Number(svg.attr('height'));
-        const margin = ({top: 20, right: 0, bottom: 30, left: 40});
+        const margin = ({top: 20, right: 0, bottom: 30, left: 50});
 
         const x = d3.scaleBand()
             .domain(data.map(d => d.name))
@@ -24,7 +30,7 @@ class BarChart extends SvgChart{
             .padding(0.1);
 
         const y = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d.value)]).nice()
+            .domain([this._minY, d3.max(data, d => d.value)]).nice()
             .range([height - margin.bottom, margin.top]);
 
         const xAxis = g => g
@@ -43,7 +49,7 @@ class BarChart extends SvgChart{
             .data(data).enter().append('rect')
             .attr('x', d => x(d.name))
             .attr('y', d => y(d.value))
-            .attr('height', d => y(0) - y(d.value))
+            .attr('height', d => y(this._minY) - y(d.value))
             .attr('width', x.bandwidth());
 
         svg.append('g').call(xAxis);
