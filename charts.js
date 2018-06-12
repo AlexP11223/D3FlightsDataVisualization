@@ -137,6 +137,55 @@ class PieChart extends SvgChart{
     }
 }
 
+class LineChart extends SvgChart{
+    constructor(data, svg) {
+        super(data, svg);
+    }
+
+    draw() {
+        const svg = this.svg;
+        const data = this.data;
+
+        const width = Number(svg.attr('width'));
+        const height = Number(svg.attr('height'));
+        const margin = ({top: 20, right: 0, bottom: 30, left: 40});
+
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.name))
+            .range([margin.left, width - margin.right])
+            .padding(0.1);
+
+        const y = d3.scaleLinear()
+            .domain([d3.min(data, d => d.value), d3.max(data, d => d.value)]).nice()
+            .range([height - margin.bottom, margin.top]);
+
+        const xAxis = g => g
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0));
+
+        const yAxis = g => g
+            .attr('transform', `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y).tickSize(-width, 0, 0))
+            .call(g => g.select(".domain").remove());
+
+        const line = d3.line()
+            .x(d => x(d.name) + x.bandwidth() / 2)
+            .y(d => y(d.value));
+
+        svg.append("path")
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("d", line);
+
+        svg.append("g").call(xAxis);
+        svg.append("g").call(yAxis);
+    }
+}
+
 class DatesLineChart extends SvgChart{
     constructor(data, svg) {
         super(data, svg);
