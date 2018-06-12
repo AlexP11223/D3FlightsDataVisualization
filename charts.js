@@ -248,3 +248,74 @@ class DatesLineChart extends SvgChart{
             .on("mousemove", mouseMove);
     }
 }
+
+class MultiLineChart extends SvgChart{
+    constructor(data, svg) {
+        super(data, svg);
+        this._colors = d3.schemeCategory10;
+    }
+
+    colors(value) {
+        this._colors = value;
+        return this;
+    }
+
+    draw() {
+        const svg = this.svg;
+        const groups = this.data;
+
+        const width = Number(svg.attr('width'));
+        const height = Number(svg.attr('height'));
+        const margin = ({top: 20, right: 60, bottom: 30, left: 40});
+
+        const x = d3.scaleLinear()
+            .domain([d3.min(groups[0].values, d => d.index), d3.max(groups[0].values, d => d.index)])
+            .range([margin.left, width - margin.right]);
+
+        const y = d3.scaleLinear()
+            .domain([
+                d3.min(groups, group => d3.min(group.values, d => d.value)),
+                d3.max(groups, group => d3.max(group.values, d => d.value))]).nice()
+            .range([height - margin.bottom, margin.top]);
+
+        const z = d3.scaleOrdinal(d3.schemeCategory10)
+            .domain(groups.map(group => group.name));
+
+        const xAxis = g => g
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x).tickFormat(ind => groups[0].values[ind].name).ticks(width / 80).tickSizeOuter(0));
+
+        const yAxis = g => g
+            .attr('transform', `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y).tickSize(-width, 0, 0))
+            .call(g => g.select(".domain").remove());
+
+        const line = d3.line()
+            .x(d => x(d.index))
+            .y(d => y(d.value));
+
+        const g = svg.selectAll(".group")
+            .data(groups)
+            .enter().append("g")
+            .attr("class", "group");
+
+        g.append("path")
+            .attr("class", "line")
+            .attr("fill", "none")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("d", group => line(group.values))
+            .style("stroke", group => z(group.name));
+
+        svg.append("g").call(xAxis);
+        svg.append("g").call(yAxis);
+
+        g.append("text")
+            .datum(group => ({name: group.name, value: group.values[group.values.length - 1]}))
+            .attr("transform", d => "translate(" + x(d.value.index) + "," + y(d.value.value) + ")")
+            .attr("x", 3)
+            .attr("dy", "0.35em")
+            .text(d => d.name);
+    }
+}

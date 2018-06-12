@@ -104,6 +104,32 @@ GROUP BY cancellation_reason</code></pre>
         </div>
     </div>
 
+    <h3>Seasonality</h3>
+
+    <p>
+        There is a huge drop of activity on Saturdays, probably related to business trips.
+    </p>
+    <p>
+        Also it seems like there are more flights in the summer (especially July-August), probably because of holidays,
+        as well as some increases in the beginning of Spring (Easter, Spring break?),
+        and the least active period is from middle of January to middle of February.
+    </p>
+
+    <svg id="datesPlot" class="plot" width="900" height="300"></svg>
+
+    <svg id="weeksPlot" class="plot" width="900" height="500"></svg>
+
+    <div class="code-spoiler">
+        <a data-toggle="collapse" role="button">SQL</a>
+        <div class="collapse">
+            <div class="card card-body code-panel">
+                <pre class="code"><code>SELECT make_date(year, month, day) as date, count(*)
+FROM flights
+GROUP BY date</code></pre>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <hr/>
         <a href="https://github.com/AlexP11223/D3FlightsDataVisualization">Source code</a>
@@ -146,6 +172,28 @@ GROUP BY cancellation_reason</code></pre>
         new PieChart(states, d3.select('#cancellationsPlot')).colors(d3.schemeAccent).draw();
         new PieChart(reasons, d3.select('#cancellationReasonPlot')).colors(d3.schemeAccent).draw();
     }
+
+    async function makeDatesPlot() {
+        const data = (await d3.json('data/dates.json'))
+            .map((it) => ({date: new Date(Date.parse(it.date)), value: it.count}));
+
+        new DatesLineChart(data, d3.select('#datesPlot'))
+            .tooltipLines([d => dateWithWeekday(d.date), d => `${d.value} flights`])
+            .draw();
+
+        const sampleWeekNumbers = [2, 3, 6, 8, 17, 22, 26, 30, 40, 42];
+
+        const firstIndex = 4;
+        const sampleLength = 9;
+
+        const sampleWeeks = sampleWeekNumbers.map(i => ({
+            name: `Week ${i}`,
+            values: data.slice(firstIndex + i * 7, firstIndex + i * 7 + sampleLength)
+                .map((d, i) => ({name: weekDayNameShort(d.date), value: d.value, index: i}))
+        }));
+
+        new MultiLineChart(sampleWeeks, d3.select('#weeksPlot')).draw();
+    }
 </script>
 
 <!--suppress JSIgnoredPromiseFromCall -->
@@ -153,6 +201,8 @@ GROUP BY cancellation_reason</code></pre>
     makeAttributesTable();
 
     makeCancellationPlots();
+
+    makeDatesPlot();
 </script>
 </body>
 </html>
