@@ -33,7 +33,7 @@
 },
 {
     "name": "distance",
-    "description": "Distance between the airports",
+    "description": "Distance between the airports, in miles",
     "min": 21,
     "max": 4983,
     "avg": 822.36,
